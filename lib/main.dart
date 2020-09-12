@@ -73,18 +73,20 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  // TODO: Clean up into extensible array
+  // TODO: Add persistent storage
   File _image;
   bool imagePicked = false;
   bool recommendedBookReceived = false;
-  String recommendedTitle1 = "";
-  String recommendedTitle2 = "";
-  String recommendedTitle3 = "";
   String recommendedURL =
       "https://gp1.wac.edgecastcdn.net/802892/http_public_production/artists/images/2284611/original/crop:x0y0w333h333/hash:1467279653/1337190569_NTD.jpg?1467279653";
 
-  String recommendedURL1 = "";
-  String recommendedURL2 = "";
-  String recommendedURL3 = "";
+  String recommendedDescription1 = "";
+  bool showDescription = false;
+  List<String> recommendedURLs = ["", "", ""];
+  List<String> recommendedTitles = ["", "", ""];
+  List<int> recommendedISBNs = [0, 0, 0];
+  List<String> recommendedDescriptions = ["", "", ""];
   String recommendedBook = "text";
   final picker = ImagePicker();
 
@@ -146,6 +148,63 @@ class _MyHomePageState extends State<MyHomePage> {
 
   // Remember, containers are like divs.
 
+  Widget getColumn(int index) {
+    if (!showDescription) {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          new Text(
+            "Recommended Books",
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 25,
+                fontFamily: "RobotoMono",
+                fontWeight: FontWeight.w600),
+          ),
+          Image.network(recommendedURLs[index]),
+          new Text(
+            recommendedTitles[index],
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontFamily: "RobotoMono",
+                fontWeight: FontWeight.w600),
+          ),
+        ],
+      );
+    } else {
+      return Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          new Text(
+            "Recommended Books",
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 25,
+                fontFamily: "RobotoMono",
+                fontWeight: FontWeight.w600),
+          ),
+          new Text(
+            recommendedTitles[index],
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 17,
+                fontFamily: "RobotoMono",
+                fontWeight: FontWeight.w600),
+          ),
+          new Text(
+            recommendedDescriptions[index],
+            style: TextStyle(
+                color: Colors.white,
+                fontSize: 12,
+                fontFamily: "RobotoMono",
+                fontWeight: FontWeight.w600),
+          )
+        ],
+      );
+    }
+  }
+
   Widget _buildChild() {
     if (imagePicked) {
       if (!recommendedBookReceived) {
@@ -197,39 +256,26 @@ class _MyHomePageState extends State<MyHomePage> {
             waveType: WaveType.liquidReveal,
             positionSlideIcon: .1,
             pages: [
-              Container(
-                // color: Colors.white,
-                // margin: EdgeInsets.all(20),
-                height: double.infinity,
-                width: double.infinity,
-                decoration: new BoxDecoration(
-                  color: Color(0xFF1b262c),
-                  borderRadius: new BorderRadius.all(
-                    Radius.circular(30.0),
+              InkWell(
+                onTap: () {
+                  print("Tapped");
+                  setState(() {
+                    showDescription = (showDescription) ? false : true;
+                  });
+                },
+                child: Container(
+                  // color: Colors.white,
+                  // margin: EdgeInsets.all(20),
+                  height: double.infinity,
+                  width: double.infinity,
+                  decoration: new BoxDecoration(
+                    color: Color(0xFF1b262c),
+                    borderRadius: new BorderRadius.all(
+                      Radius.circular(30.0),
+                    ),
                   ),
-                ),
 
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    new Text(
-                      "Recommended Books",
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 25,
-                          fontFamily: "RobotoMono",
-                          fontWeight: FontWeight.w600),
-                    ),
-                    Image.network(recommendedURL1),
-                    new Text(
-                      recommendedTitle1,
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontFamily: "RobotoMono",
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ],
+                  child: getColumn(0),
                 ),
               ),
               Container(
@@ -255,9 +301,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           fontFamily: "RobotoMono",
                           fontWeight: FontWeight.w600),
                     ),
-                    Image.network(recommendedURL2),
+                    Image.network(recommendedURLs[1]),
                     new Text(
-                      recommendedTitle2,
+                      recommendedTitles[1],
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 20,
@@ -290,9 +336,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           fontFamily: "RobotoMono",
                           fontWeight: FontWeight.w600),
                     ),
-                    Image.network(recommendedURL3),
+                    Image.network(recommendedURLs[2]),
                     new Text(
-                      recommendedTitle3,
+                      recommendedTitles[2],
                       style: TextStyle(
                           color: Colors.black,
                           fontSize: 20,
@@ -390,15 +436,11 @@ class _MyHomePageState extends State<MyHomePage> {
           .post("http://100.25.142.121:8000/recommendBooks", data: formData);
       print(response.data["recommended_items"][0]["title"]);
       print(response.data["recommended_items"][0]["isbn"]); // how to read data.
-      // recommendedISBNs = response.data["recommended_items"];
       int recommendedISBN = response.data["recommended_items"][0]["isbn"];
-      // recommendedTitles = response.data["recommended_items"];
       String recommendedTitle = response.data["recommended_items"][0]["title"];
       recommendedBook = recommendedTitle;
-      recommendedTitle1 = response.data["recommended_items"][0]["title"];
-      recommendedTitle2 = response.data["recommended_items"][1]["title"];
-      recommendedTitle3 = response.data["recommended_items"][2]["title"];
-
+      recommendedDescription1 =
+          response.data["recommended_items"][0]["description"];
       // TODO: CLEAN up this code
       Response getResponse = await dio.get(
           "https://www.googleapis.com/books/v1/volumes?q==$recommendedTitle");
@@ -408,9 +450,13 @@ class _MyHomePageState extends State<MyHomePage> {
       String thumbnail =
           getResponse.data["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"];
       recommendedURL = (thumbnail != null) ? thumbnail : recommendedURL;
-      recommendedURL1 = response.data["recommended_items"][0]["image"];
-      recommendedURL2 = response.data["recommended_items"][1]["image"];
-      recommendedURL3 = response.data["recommended_items"][2]["image"];
+      for (var i = 0; i < 3; ++i) {
+        recommendedURLs[i] = response.data["recommended_items"][i]["image"];
+        recommendedTitles[i] = response.data["recommended_items"][i]["title"];
+        recommendedISBNs[i] = response.data["recommended_items"][i]["isbn"];
+        recommendedDescriptions[i] =
+            response.data["recommended_items"][i]["description"];
+      }
       setState(() {
         _image = null;
         recommendedBookReceived = true;
