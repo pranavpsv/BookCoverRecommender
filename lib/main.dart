@@ -7,6 +7,7 @@ import 'package:dio/dio.dart';
 import 'package:carousel_pro/carousel_pro.dart';
 import 'package:flutter_speed_dial_material_design/flutter_speed_dial_material_design.dart';
 import 'package:liquid_swipe/liquid_swipe.dart';
+import 'package:flutter/services.dart';
 
 void main() {
   runApp(MyApp());
@@ -82,6 +83,9 @@ class _MyHomePageState extends State<MyHomePage> {
       "https://gp1.wac.edgecastcdn.net/802892/http_public_production/artists/images/2284611/original/crop:x0y0w333h333/hash:1467279653/1337190569_NTD.jpg?1467279653";
 
   String recommendedDescription1 = "";
+  String originalTitle = "";
+  String originalDescription = "";
+  String originalImageLink = "";
   bool showDescription = false;
   List<String> recommendedURLs = ["", "", ""];
   List<String> recommendedTitles = ["", "", ""];
@@ -154,22 +158,35 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           new Text(
-            "Recommended Books",
+            (index != 3) ? "Recommended Book" : "Your Book",
             style: TextStyle(
-                color: Colors.white,
+                color: ((index == 1) || (index == 0))
+                    ? Colors.white
+                    : Colors.black,
                 fontSize: 25,
                 fontFamily: "RobotoMono",
                 fontWeight: FontWeight.w600),
           ),
-          Image.network(recommendedURLs[index]),
           new Text(
-            recommendedTitles[index],
+            (index != 3) ? recommendedTitles[index] : originalTitle,
             style: TextStyle(
-                color: Colors.white,
+                color: ((index == 1) || (index == 0))
+                    ? Colors.white
+                    : Colors.black,
                 fontSize: 17,
                 fontFamily: "RobotoMono",
                 fontWeight: FontWeight.w600),
           ),
+          (index != 3)
+              ? ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.network(
+                    recommendedURLs[index],
+                  ),
+                )
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(8.0),
+                  child: Image.network(originalImageLink)),
         ],
       );
     } else {
@@ -177,25 +194,31 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           new Text(
-            "Recommended Books",
+            (index != 3) ? "Recommended Book" : "Your Book",
             style: TextStyle(
-                color: Colors.white,
+                color: ((index == 1) || (index == 0))
+                    ? Colors.white
+                    : Colors.black,
                 fontSize: 25,
                 fontFamily: "RobotoMono",
                 fontWeight: FontWeight.w600),
           ),
           new Text(
-            recommendedTitles[index],
+            (index != 3) ? recommendedTitles[index] : originalTitle,
             style: TextStyle(
-                color: Colors.white,
+                color: ((index == 1) || (index == 0))
+                    ? Colors.white
+                    : Colors.black,
                 fontSize: 17,
                 fontFamily: "RobotoMono",
                 fontWeight: FontWeight.w600),
           ),
           new Text(
-            recommendedDescriptions[index],
+            (index != 3) ? recommendedDescriptions[index] : originalDescription,
             style: TextStyle(
-                color: Colors.white,
+                color: ((index == 1) || (index == 0))
+                    ? Colors.white
+                    : Colors.black,
                 fontSize: 12,
                 fontFamily: "RobotoMono",
                 fontWeight: FontWeight.w600),
@@ -243,6 +266,8 @@ class _MyHomePageState extends State<MyHomePage> {
         return Container(
           height: 500,
           width: 350,
+
+          // padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
           // margin: EdgeInsets.fromLTRB(70, 0, 0, 0),
           decoration: new BoxDecoration(
             // color: Colors.green,
@@ -254,7 +279,8 @@ class _MyHomePageState extends State<MyHomePage> {
           child: LiquidSwipe(
             enableSlideIcon: true,
             waveType: WaveType.liquidReveal,
-            positionSlideIcon: .1,
+            positionSlideIcon: 0,
+            slideIconWidget: const Icon(Icons.arrow_back_ios),
             pages: [
               InkWell(
                 onTap: () {
@@ -266,10 +292,58 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Container(
                   // color: Colors.white,
                   // margin: EdgeInsets.all(20),
+                  padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
                   height: double.infinity,
                   width: double.infinity,
                   decoration: new BoxDecoration(
-                    color: Color(0xFF1b262c),
+                    // color: Color(0xFF4e89ae),
+                    gradient: new LinearGradient(
+                        // colors: [Color(0xffb4005c), Color(0xffff0084)],
+                        colors: [Color(0xFFffb347), Color(0xFFffcc33)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        tileMode: TileMode.clamp),
+                    // boxShadow: [
+                    //   BoxShadow(
+                    //     color: Colors.grey.withOpacity(0.5),
+                    //     spreadRadius: 5,
+                    //     blurRadius: 7,
+                    //     offset: Offset(0, 3), // changes position of shadow
+                    //   ),
+                    // ],
+                    // color: Color(0xFFffc93c),
+
+                    borderRadius: new BorderRadius.all(
+                      Radius.circular(30.0),
+                    ),
+                  ),
+
+                  child: getColumn(3),
+                ),
+              ),
+              InkWell(
+                onTap: () {
+                  print("Tapped");
+                  setState(() {
+                    showDescription = (showDescription) ? false : true;
+                  });
+                },
+                child: Container(
+                  // color: Colors.white,
+                  // margin: EdgeInsets.all(20),
+                  padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
+                  height: double.infinity,
+                  width: double.infinity,
+                  decoration: new BoxDecoration(
+                    // color: Color(0xFF1b262c),
+                    // color: Color(0xFFffc93c),
+                    gradient: new LinearGradient(
+                        colors: [Color(0xFF02aab0), Color(0xFF00cdac)],
+                        // colors: [Color(0xff2c3e50), Color(0xff2980b9)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        tileMode: TileMode.clamp),
+
                     borderRadius: new BorderRadius.all(
                       Radius.circular(30.0),
                     ),
@@ -278,74 +352,66 @@ class _MyHomePageState extends State<MyHomePage> {
                   child: getColumn(0),
                 ),
               ),
-              Container(
-                // color: Colors.pinkAccent,
-                height: double.infinity,
-                width: double.infinity,
-                decoration: new BoxDecoration(
-                  // color: Color(0xFFd6e0f0),
-                  color: Color(0xFFffc93c),
-                  borderRadius: new BorderRadius.all(
-                    Radius.circular(30.0),
-                  ),
-                ),
+              InkWell(
+                onTap: () {
+                  print("Tapped");
+                  setState(() {
+                    showDescription = (showDescription) ? false : true;
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
 
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    new Text(
-                      "Recommended Books",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 25,
-                          fontFamily: "RobotoMono",
-                          fontWeight: FontWeight.w600),
+                  // color: Colors.pinkAccent,
+                  height: double.infinity,
+                  width: double.infinity,
+                  decoration: new BoxDecoration(
+                    // color: Color(0xFFd6e0f0),
+                    // color: Color(0xff222831),
+                    gradient: new LinearGradient(
+                        colors: [Color(0xFF000000), Color(0xFF434343)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        tileMode: TileMode.clamp),
+
+                    borderRadius: new BorderRadius.all(
+                      Radius.circular(30.0),
                     ),
-                    Image.network(recommendedURLs[1]),
-                    new Text(
-                      recommendedTitles[1],
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          fontFamily: "RobotoMono",
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ],
+                  ),
+
+                  child: getColumn(1),
                 ),
               ),
-              Container(
-                // color: Colors.pinkAccent,
-                height: double.infinity,
-                width: double.infinity,
-                decoration: new BoxDecoration(
-                  // color: Color(0xFFd6e0f0),
-                  color: Color(0xFF318fb5),
-                  borderRadius: new BorderRadius.all(
-                    Radius.circular(30.0),
-                  ),
-                ),
+              InkWell(
+                onTap: () {
+                  print("Tapped");
+                  setState(() {
+                    showDescription = (showDescription) ? false : true;
+                  });
+                },
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(10, 10, 10, 10),
 
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    new Text(
-                      "Recommended Books",
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 25,
-                          fontFamily: "RobotoMono",
-                          fontWeight: FontWeight.w600),
+                  // color: Colors.pinkAccent,
+                  height: double.infinity,
+                  width: double.infinity,
+                  decoration: new BoxDecoration(
+                    // color: Color(0xFFd6e0f0),
+                    // color: Color(0xff4f8a8b),
+                    // color: Color(0xffFF5C6E),
+                    // color: Color(0xfff1f3f8),
+                    gradient: new LinearGradient(
+                        colors: [Color(0xFFB8C6DB), Color(0xFFf5f7fa)],
+                        begin: Alignment.centerLeft,
+                        end: Alignment.centerRight,
+                        tileMode: TileMode.clamp),
+
+                    borderRadius: new BorderRadius.all(
+                      Radius.circular(30.0),
                     ),
-                    Image.network(recommendedURLs[2]),
-                    new Text(
-                      recommendedTitles[2],
-                      style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 20,
-                          fontFamily: "RobotoMono",
-                          fontWeight: FontWeight.w600),
-                    ),
-                  ],
+                  ),
+
+                  child: getColumn(2),
                 ),
               ),
             ],
@@ -368,6 +434,7 @@ class _MyHomePageState extends State<MyHomePage> {
         decoration: new BoxDecoration(
           // color: Color(0xFFd6e0f0),
           color: Color(0xFF1b262c),
+          // color: Color(0xff68b0ab),
           borderRadius: new BorderRadius.all(
             Radius.circular(30.0),
           ),
@@ -394,8 +461,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   fontWeight: FontWeight.w600),
             ),
             SizedBox(height: 50),
-            Image.network(
-                "https://images.theconversation.com/files/45159/original/rptgtpxd-1396254731.jpg?ixlib=rb-1.1.0&q=45&auto=format&w=1356&h=668&fit=crop"),
+            Image.asset(
+              "images/cover.jpg",
+              // height: 300,
+            )
           ],
         ),
       );
@@ -436,20 +505,19 @@ class _MyHomePageState extends State<MyHomePage> {
           .post("http://100.25.142.121:8000/recommendBooks", data: formData);
       print(response.data["recommended_items"][0]["title"]);
       print(response.data["recommended_items"][0]["isbn"]); // how to read data.
-      int recommendedISBN = response.data["recommended_items"][0]["isbn"];
-      String recommendedTitle = response.data["recommended_items"][0]["title"];
-      recommendedBook = recommendedTitle;
-      recommendedDescription1 =
-          response.data["recommended_items"][0]["description"];
+      // int recommendedISBN = response.data["recommended_items"][0]["isbn"];
+      // String recommendedTitle = response.data["recommended_items"][0]["title"];
+      // recommendedBook = recommendedTitle;
       // TODO: CLEAN up this code
-      Response getResponse = await dio.get(
-          "https://www.googleapis.com/books/v1/volumes?q==$recommendedTitle");
-      print(getResponse.data["items"][0]);
-      print(getResponse.data["items"][0]["volumeInfo"]["imageLinks"]
-          ["thumbnail"]);
-      String thumbnail =
-          getResponse.data["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"];
-      recommendedURL = (thumbnail != null) ? thumbnail : recommendedURL;
+      // Response getResponse = await dio.get(
+      //     "https://www.googleapis.com/books/v1/volumes?q==$recommendedTitle");
+      // print(getResponse.data["items"][0]["volumeInfo"]["imageLinks"]
+      //     ["thumbnail"]);
+      // String thumbnail =
+      //     getResponse.data["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"];
+      originalDescription = response.data["original_item"]["book_description"];
+      originalTitle = response.data["original_item"]["title"];
+      originalImageLink = response.data["original_item"]["image"];
       for (var i = 0; i < 3; ++i) {
         recommendedURLs[i] = response.data["recommended_items"][i]["image"];
         recommendedTitles[i] = response.data["recommended_items"][i]["title"];
@@ -468,11 +536,15 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      systemNavigationBarColor: Color(0xFF222831),
+    ));
     return Scaffold(
       appBar: AppBar(
         title: Center(
           child: Text(
-            "Book Photo Recommender",
+            "BookCover Recommender",
             style: TextStyle(
                 color: Colors.white,
                 fontSize: 20,
