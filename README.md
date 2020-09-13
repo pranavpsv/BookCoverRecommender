@@ -1,16 +1,9 @@
-# book_recommender
+# BookCover Recommender
 
-A new Flutter application.
+This is a Flutter cross-platform mobile application that allows people to take pictures of their book covers to receive book recommendations based on them.
 
-## Getting Started
+The recommendations are given based on my custom-built  hybrid Book recommender system using collaborative filtering and content-based filtering (using BERT embeddings with FAISS).
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Here's a demo:
+![](demo.gif)
