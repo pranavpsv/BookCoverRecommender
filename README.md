@@ -6,4 +6,6 @@ The recommendations are given based on my custom-built  hybrid Book recommender 
 
 
 Here's a demo:
+
+
 ![](demo.gif)
