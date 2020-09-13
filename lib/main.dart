@@ -581,3 +581,7 @@ class _MyHomePageState extends State<MyHomePage> {
 // TODO: On touch of recommended books, add description?
 
 // TODO: Experiment with Colors swap for swipe button to be more visible
+
+// TODO: Add persistent storage
+
+// TODO: Look at difference between DEBUG and RELEASE
