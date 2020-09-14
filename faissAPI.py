@@ -1,4 +1,6 @@
 from fastapi import FastAPI, File, UploadFile
+from google.cloud import vision
+from google.cloud.vision import types
 import os
 import pickle
 import requests
@@ -9,6 +11,30 @@ from tqdm import tqdm
 from sentence_transformers import SentenceTransformer, util
 import numpy as np
 import faiss
+
+def detect_text(uploaded_file):
+    client = vision.ImageAnnotatorClient()
+
+    # Loads the image into memory
+    content = uploaded_file.file.read()
+    image = types.Image(content=content)
+
+    response = client.text_detection(image=image)
+    texts = response.text_annotations
+    """
+        vertices = (['({},{})'.format(vertex.x, vertex.y)
+                    for vertex in text.bounding_poly.vertices])
+
+        print('bounds: {}'.format(','.join(vertices)))
+    """
+    if response.error.message:
+        raise Exception(
+            '{}\nFor more info on error messages, check: '
+            'https://cloud.google.com/apis/design/errors'.format(
+                response.error.message))
+    return texts[0].description
+
+
 
 df = pd.read_parquet("embeddings_df.parquet") # Parquet file with books dataset and its description embedding
 df.drop_duplicates(inplace=True, subset=["description"])
@@ -97,16 +123,20 @@ def create_upload_file(file: UploadFile = File(...)):
             ocr_book_description += (line + "\n")
 
     ocr_book_embeddings  = model.encode(ocr_book_description, )
+    print("Embeddings shape")
+    print(ocr_book_embeddings.shape)
     # TODO: Account for ISBN-10 and ISBN-13 if needed
 
+    ocr_isbn = ocr_book_isbn_line.split(" ")[1].replace("-", "")
 
-    cr_isbn = ocr_book_isbn_line.split(" ")[1].replace("-", "") # TODO: Write logic in more elegant way
     print(f"ISBN line: {ocr_book_isbn_line}")
     print(f"The book's ISBN: {ocr_isbn}")
 
     print(f"The Book's description: {ocr_book_description}")
 
-    faiss.normalize_L2(ocr_book_embeddings)
+    #faiss.normalize_L2(ocr_book_embeddings)
+    ocr_book_embeddings = ocr_book_embeddings / np.linalg.norm(ocr_book_embeddings)
+    ocr_book_embeddings = np.expand_dims(ocr_book_embeddings, axis=0)
 
     # Search in FAISS. It returns a matrix with distances and corpus ids.
     distances, corpus_ids = index.search(ocr_book_embeddings, top_k_hits)
@@ -122,6 +152,7 @@ def create_upload_file(file: UploadFile = File(...)):
     res = requests.get(link).json()
     image_link = res["items"][0]["volumeInfo"]["imageLinks"]["thumbnail"]
     original_title = res["items"][0]["volumeInfo"]["title"]
+    response = {}
     response["original_item"] = {"book_isbn": ocr_isbn, "title": original_title, "image": image_link, "book_description": (ocr_book_description[:400] + "...")}
     response["recommended_items"] = []
     print("ORGINAL ITEM: \n")
@@ -130,8 +161,8 @@ def create_upload_file(file: UploadFile = File(...)):
     for hit in hits[0:top_k_hits]:
         print(titles[hit["corpus_id"]])
         print("\t{:.3f}\t{}".format(hit['score'], descriptions[hit['corpus_id']]))
-        recommended_item = {"title": titles[hit["corpus_ids"]], "description":  (descriptions[hit["corpus_ids"]][:400] + "..."),
-                "isbn": isbn13[hit["corpus_ids"]]
+        recommended_item = {"title": titles[hit["corpus_id"]], "description":  (descriptions[hit["corpus_id"]][:400] + "..."),
+                "isbn": isbn13[hit["corpus_id"]]
                 }
 
         google_books_json = requests.get(f"https://www.googleapis.com/books/v1/volumes?q=={recommended_item['title']} book").json()
