@@ -75,7 +75,6 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   // TODO: Clean up into extensible array
-  // TODO: Add persistent storage
   File _image;
   bool imagePicked = false;
   bool recommendedBookReceived = false;
@@ -574,14 +573,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 // TODO: Add a Carousel for viewing recommended books (Maybe)
-// TODO: Change styling of app
 
-// TODO: iPhone camera and gallery integration?
-
-// TODO: On touch of recommended books, add description?
-
-// TODO: Experiment with Colors swap for swipe button to be more visible
+// TODO: iPhone problems check
 
 // TODO: Add persistent storage
-
-// TODO: Look at difference between DEBUG and RELEASE
